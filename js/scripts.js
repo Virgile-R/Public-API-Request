@@ -22,8 +22,7 @@ function checkStatus(response) {
 
 function generateUserCard(data) {
   const gallery = document.getElementById("gallery");
-  console.log(data);
-  data.results.map((user) => {
+  data.results.forEach((user) => {
     const fullName = user.name.first + " " + user.name.last;
     const phoneRegEx = /^\D*(\d{3})\D*(\d{3})\D*(\d{4})\D*$/;
     const phone = user.phone.replace(phoneRegEx, "($1) $2-$3");
@@ -39,12 +38,11 @@ function generateUserCard(data) {
             <div class="card-info-container">
                 <h3 id="name" class="card-name cap">${fullName}</h3>
                 <p class="card-text">${user.email}</p>
-                <p class="card-text cap">${user.location.city}, ${
-      user.location.state
+                <p class="card-text cap">${user.location.city}, ${user.location.state
     }</p>
             </div>
         <div class="modal-container">
-        <div class="modal ${user.name.first.toLowerCase()}-${user.name.last.toLowerCase()}" >
+        <div class="modal" data-name ="${user.name.first.toLowerCase()}-${user.name.last.toLowerCase()}" >
             <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
             <div class="modal-info-container">
                 <img class="modal-img" src="${
@@ -64,7 +62,7 @@ function generateUserCard(data) {
             </div>
         </div>
        
-        // IMPORTANT: Below is only for exceeds tasks 
+        
         <div class="modal-btn-container">
             <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
             <button type="button" id="modal-next" class="modal-next btn">Next</button>
@@ -80,6 +78,7 @@ function generateUserCard(data) {
 const searchDiv = document.querySelector('.search-container')
 const searchHtml = `<form class='search-form' action="#" method="get">
 <input type="search" id="search-input" class="search-input" placeholder="Search...">
+<button type="button" class="clear-search-btn">x</button>
 <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
 </form>`
 searchDiv.insertAdjacentHTML("beforeend", searchHtml)
@@ -143,24 +142,41 @@ getData("https://randomuser.me/api/?nat=us&results=12")
     });
   });
 
-//search bar event listener TODO: reset the form and get partial matches (regex should help)
-
+//search bar event listener 
+const resetButton = document.querySelector('.clear-search-btn')
 const searchForm = document.querySelector('.search-form')
 searchForm.addEventListener('submit', (e) => {
     e.preventDefault()
     const searchInput = document.querySelector('#search-input')
-    let searchString = searchInput.value
+    let searchString = searchInput.value.toLowerCase().replace(/ /, '-')
     
-    const userDisplayed = Array.from(document.querySelectorAll('.card'))
-    userDisplayed.map(user => {
-        userName = user.querySelector('h3').textContent
-        if (userName !== searchString) {
+    const usersDisplayed = Array.from(document.querySelectorAll('.card'))
+    const searchHits = []
+    usersDisplayed.forEach(user => {
+        userName = user.querySelector('.modal').dataset.name
+        if (!userName.includes(searchString)) {
             user.style.display ='none'
+            
+        } else{
+            searchHits.push(user)
         }
-
-
+        
     })
-    
-
-
+    if (searchHits.length === 0){
+      const gallery = document.getElementById("gallery")
+      const html = `<div class="no-match">No users matches your search, use the reset button to try again!</div>`
+      gallery.insertAdjacentHTML("beforeend", html) 
+    }
+    resetButton.classList.toggle('show-clear-btn')  
 })
+//resets the page after a search
+resetButton.addEventListener('click', ()=> {
+  const usersDisplayed = Array.from(document.querySelectorAll('.card'))
+    usersDisplayed.forEach(user => {
+      user.style.display =''
+    })
+    resetButton.classList.toggle('show-clear-btn')
+    document.querySelector('.no-match').remove()
+    document.querySelector('#search-input').value =''  
+})
+

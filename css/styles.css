@@ -16,7 +16,7 @@ html, body {
 body {
     font-family: "Nunito", sans-serif;
     text-align: center;
-    background: rgba(235, 235, 235, 0.9);
+    background: rgb(255, 255, 253);
 }
 
 header {
@@ -33,13 +33,17 @@ header h1 {
     color: rgba(50, 50, 50, 0.9);
     margin-top: 35px;
 }
-
+form {
+    display: flex;
+    flex-direction: row;
+}
 .search-input {
     padding: 0.4rem 1rem;
     border: 1px solid rgba(200, 200, 200, 0.9);
     border-radius: 0.25rem 0 0 0.25rem ;
     max-width: 20rem;
     transition: .4s ease-out;
+    flex-grow: 2;
 }
 
 .search-input:active, .search-input:hover, .search-input:focus {
@@ -47,17 +51,34 @@ header h1 {
 }
 
 .search-submit {
-    cursor: pointer;
-    height: 33px;
+    cursor: pointer;   
     background: rgba(245, 245, 245, 0.9);
     border-radius: 0 0.25rem 0.25rem 0;
     border: 1px solid rgba(200, 200, 200, 0.9);
     transition: .4s ease-out;
+    
 }
 
 .search-submit:active, .search-submit:hover, .search-submit:focus {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(50, 50, 50, 0.9);
+}
+.clear-search-btn{
+  cursor: pointer;  
+  border:1px solid grey;
+  background:grey;
+  color:white;
+  line-height: 8px;
+  margin: auto 0 auto -17px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  opacity: 0.30;
+  visibility: hidden;
+}
+
+.show-clear-btn{
+    visibility: visible;
 }
 
 
@@ -67,12 +88,14 @@ header h1 {
 
 .gallery {
     display: flex;
+    background-color: beige;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-evenly;
     width: 100%;
     max-width: 1200px;
     margin: auto;
+    
 }
   
 .card {
@@ -85,11 +108,12 @@ header h1 {
     max-width: 360px;
     margin: 10px 10px 20px;
     padding: 10px;
-    background: rgba(245, 245, 245, 0.9);
+    background: rgba(227, 255, 255, 0.9);
     border-radius: 0.25em;
     border: 1px solid rgba(50, 50, 50, 0.3);
     transition: .4s ease-out;
     overflow: hidden;
+    
 }
 
 .card-img {
@@ -202,7 +226,7 @@ header h1 {
     padding: 0.75em 1.5em;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 0.35em;
-    transition: .4s ease-out;
+   
   }
   
   .show-modal {
