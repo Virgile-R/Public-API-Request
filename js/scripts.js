@@ -8,7 +8,8 @@ async function getData(url) {
     const responseChecked = await checkStatus(response);
     return responseChecked.json();
   } catch (error) {
-    return console.error("There was a problem with the request: ", error);
+    
+    return Promise.reject(error)
   }
 }
 
@@ -29,7 +30,7 @@ function generateUserCard(data) {
     const dobRegEx = /\D*(\d{4})\D*(\d{2})\D*(\d{2})\D*/;
     const dob = user.dob.date.substring(0, 10).replace(dobRegEx, "$3/$2/$1");
     const html = `
-        <div class="card ${user.name.first.toLowerCase()}-${user.name.last.toLowerCase()} ">
+        <div class="card ${user.name.first.toLowerCase()}-${user.name.last.toLowerCase()} visible ">
             <div class="card-img-container">
                 <img class="card-img" src="${
                   user.picture.large
@@ -88,7 +89,7 @@ searchDiv.insertAdjacentHTML("beforeend", searchHtml)
 
 getData("https://randomuser.me/api/?nat=us&results=12")
   .then((data) => generateUserCard(data))
-  .catch(new Error("Something went wrong with the data. Try Again"))
+  .catch(err => console.error("There was a problem with the request: ", err))
   /***
    * Event Listeners
    */
@@ -115,11 +116,12 @@ getData("https://randomuser.me/api/?nat=us&results=12")
           e.target.tagName === "BUTTON" &&
           e.target.className === "modal-prev btn"
         ) {
-          const currentCardIndex = Array.from(cards).indexOf(
+          const currentCard = Array.from(document.querySelectorAll('.visible'))
+          const currentCardIndex = currentCard.indexOf(
             e.target.closest(".card")
           );
           if (currentCardIndex > 0) {
-            const prevCard = cards[currentCardIndex - 1];
+            const prevCard = currentCard[currentCardIndex - 1];
             prevCard
               .querySelector(".modal-container")
               .classList.toggle("show-modal");
@@ -128,11 +130,12 @@ getData("https://randomuser.me/api/?nat=us&results=12")
           e.target.tagName === "BUTTON" &&
           e.target.className === "modal-next btn"
         ) {
-          const currentCardIndex = Array.from(cards).indexOf(
+          const currentCard = Array.from(document.querySelectorAll('.visible'))
+          const currentCardIndex = currentCard.indexOf(
             e.target.closest(".card")
           );
-          if (currentCardIndex < cards.length - 1) {
-            const nextCard = cards[currentCardIndex + 1];
+          if (currentCardIndex < currentCard.length - 1) {
+            const nextCard = currentCard[currentCardIndex + 1];
             nextCard
               .querySelector(".modal-container")
               .classList.toggle("show-modal");
@@ -143,40 +146,51 @@ getData("https://randomuser.me/api/?nat=us&results=12")
   });
 
 //search bar event listener 
-const resetButton = document.querySelector('.clear-search-btn')
+
 const searchForm = document.querySelector('.search-form')
 searchForm.addEventListener('submit', (e) => {
     e.preventDefault()
     const searchInput = document.querySelector('#search-input')
     let searchString = searchInput.value.toLowerCase().replace(/ /, '-')
-    
-    const usersDisplayed = Array.from(document.querySelectorAll('.card'))
-    const searchHits = []
-    usersDisplayed.forEach(user => {
-        userName = user.querySelector('.modal').dataset.name
-        if (!userName.includes(searchString)) {
-            user.style.display ='none'
-            
-        } else{
-            searchHits.push(user)
+    //resets the search if user submits an empty string
+    if (searchString === ""){
+      const usersDisplayed = Array.from(document.querySelectorAll('.card'))
+      usersDisplayed.forEach(user => {
+        user.removeAttribute("style")
+        if (!user.classList.contains('visible')){
+          user.classList.add("visible")
         }
+       
+      })
+     
         
-    })
-    if (searchHits.length === 0){
-      const gallery = document.getElementById("gallery")
-      const html = `<div class="no-match">No users matches your search, use the reset button to try again!</div>`
-      gallery.insertAdjacentHTML("beforeend", html) 
+      
+      if (document.querySelector('.no-match')){
+       document.querySelector('.no-match').remove()
     }
-    resetButton.classList.toggle('show-clear-btn')  
-})
-//resets the page after a search
-resetButton.addEventListener('click', ()=> {
-  const usersDisplayed = Array.from(document.querySelectorAll('.card'))
-    usersDisplayed.forEach(user => {
-      user.style.display =''
-    })
-    resetButton.classList.toggle('show-clear-btn')
-    document.querySelector('.no-match').remove()
-    document.querySelector('#search-input').value =''  
+    } else {
+      const usersDisplayed = Array.from(document.querySelectorAll('.card'))
+      const searchHits = []
+      usersDisplayed.forEach(user => {
+          userName = user.querySelector('.modal').dataset.name
+          if (!userName.includes(searchString)) {
+              user.style.display ='none'
+              user.classList.remove('visible')
+              
+          } else{
+              searchHits.push(user)
+              
+          }
+          
+      })
+    
+      if (searchHits.length === 0 && !document.querySelector('.no-match')){
+        const gallery = document.getElementById("gallery")
+        const html = `<div class="no-match">No users matches your search, please try again!</div>`
+        gallery.insertAdjacentHTML("beforeend", html) 
+      }
+      
+     
+  }
 })
 
